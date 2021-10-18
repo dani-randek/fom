@@ -1,9 +1,7 @@
 package hu.futureofmedia.task.contactsapi.service;
 
-import hu.futureofmedia.task.contactsapi.entities.DetailedPersonDTO;
-import hu.futureofmedia.task.contactsapi.entities.Person;
-import hu.futureofmedia.task.contactsapi.entities.PersonDTO;
-import hu.futureofmedia.task.contactsapi.entities.Status;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import hu.futureofmedia.task.contactsapi.entities.*;
 import hu.futureofmedia.task.contactsapi.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +22,11 @@ public class PersonService {
     @Autowired
     PersonMapper personMapper;
 
+    PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+
+    @Autowired
+    CompanyService companyService;
+
     /**
      *  A metódus csinál egy pageable-t 10-es oldalmérettel, a requestből kapott oldalszámmal, a vezetéknév, majd a
      *  keresztnév szerint növekvő sorrendbe rendezve, ezt továbbadja a repositorynak, ami kikeresi a megfelelő oldalon lévő
@@ -38,12 +41,37 @@ public class PersonService {
         ).collect(Collectors.toList());
     }
 
+    private boolean validPhone(String phoneNumber){
+        boolean validPhone = true;
+        /*
+        phoneNumberUtil.findNumbers(phoneNumber);
+        Phonenumber.PhoneNumber tel = phoneNumberUtil.parse(p.getPhoneNumber());
+        phoneNumberUtil.isValidNumber(tel);
+         */
+        if(validPhone){
+            return true;
+        }
+        return false;
+    }
 
     /**
      *  Elment az adatbázisba egy a controllertől kapott person-t.
      */
-    public void addPerson(Person person){
-        personRepository.save(person);
+    public void addPerson(PersonCreateDTO person){
+        Optional<Company> company = companyService.getById(person.getCompanyId());
+        if(validPhone(person.getPhoneNumber()) && company.isPresent()){
+            personRepository.save(personMapper.personCreateDTOToPerson(person, company.get()));
+        }
+    }
+
+    public void updatePerson(Long id, PersonCreateDTO person){
+        Optional<Company> company = companyService.getById(person.getCompanyId());
+        Optional<Person> personToUpdate = getById(id);
+        if(personToUpdate.isPresent() && company.isPresent()&& validPhone(person.getPhoneNumber())){
+            Person updatedPerson = personMapper.personCreateDTOToPerson(person, company.get());
+            updatedPerson.setId(id);
+            personRepository.save(updatedPerson);
+        }
     }
 
     /**
@@ -58,17 +86,18 @@ public class PersonService {
      */
     public DetailedPersonDTO getDetailed(Long id) {
         Optional<Person> person = getById(id);
-        if(person.isPresent()){
-            return personMapper.personToDetailedDTO(person.get());
-        }
-        else return null;
+        return person.map(value -> personMapper.personToDetailedDTO(value)).orElse(null);
     }
 
     /**
      *  Kikeres egy person-t, megnézi létezik-e, ha igen akkor törli.
      */
     public void deleteById(Long id) {
-        if(getById(id).isPresent())
-            personRepository.deleteById(id);
+        Optional<Person> personById = getById(id);
+        Person person = new Person();
+        if(personById.isPresent())
+            person = personById.get();
+            person.setStatus(Status.DELETED);
+            personRepository.save(person);
     }
 }

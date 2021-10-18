@@ -1,6 +1,7 @@
 package hu.futureofmedia.task.contactsapi.entities;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -8,12 +9,12 @@ import org.springframework.data.annotation.LastModifiedDate;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 public class Person {
 
     @Id
@@ -43,5 +44,16 @@ public class Person {
 
     @LastModifiedDate
     private Instant lastModifiedDate;
+
+    public Person(String lastName, String firstName, Company company,  String email, String phoneNumber,
+                   String note){
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.company = company;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.note = note;
+        this.status = Status.ACTIVE;
+    }
 
 }

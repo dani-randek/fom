@@ -1,9 +1,9 @@
 package hu.futureofmedia.task.contactsapi.service;
 
-import hu.futureofmedia.task.contactsapi.entities.DetailedPersonDTO;
-import hu.futureofmedia.task.contactsapi.entities.Person;
-import hu.futureofmedia.task.contactsapi.entities.PersonDTO;
+import hu.futureofmedia.task.contactsapi.entities.*;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class PersonMapper {
@@ -32,4 +32,12 @@ public class PersonMapper {
         return personDTO;
     }
 
+    public Person personCreateDTOToPerson(PersonCreateDTO p, Company company){
+            return new Person(p.getLastName(),
+                    p.getFirstName(),
+                    company,
+                    p.getEmail(),
+                    p.getPhoneNumber(),
+                    p.getNote());
+    }
 }

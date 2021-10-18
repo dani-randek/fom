@@ -2,6 +2,7 @@ package hu.futureofmedia.task.contactsapi.controller;
 
 import hu.futureofmedia.task.contactsapi.entities.DetailedPersonDTO;
 import hu.futureofmedia.task.contactsapi.entities.Person;
+import hu.futureofmedia.task.contactsapi.entities.PersonCreateDTO;
 import hu.futureofmedia.task.contactsapi.entities.PersonDTO;
 import hu.futureofmedia.task.contactsapi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/people")
 public class PersonController {
 
     @Autowired
@@ -22,14 +24,19 @@ public class PersonController {
         return personService.getAllActive(page);
     }
 
-    @PostMapping("/create")
-    public void addPerson(@RequestBody Person person){
-        personService.addPerson(person);
-    }
-
     @GetMapping(path = "{id}")
     public DetailedPersonDTO getDetailedById(@PathVariable("id") Long id){
         return personService.getDetailed(id);
+    }
+
+    @PostMapping("/create")
+    public void addPerson(@RequestBody PersonCreateDTO person){
+        personService.addPerson(person);
+    }
+
+    @PutMapping(path = "{id}")
+    public void updatePersonById(@PathVariable("id") Long id, @RequestBody PersonCreateDTO person){
+        personService.updatePerson(id, person);
     }
 
     @DeleteMapping(path = "{id}")
