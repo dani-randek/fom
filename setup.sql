@@ -9,3 +9,5 @@ insert into company (name)
 values ('Company #1'),
        ('Company #2'),
        ('Company #3');
+
+
