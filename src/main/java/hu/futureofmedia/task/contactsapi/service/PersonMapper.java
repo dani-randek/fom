@@ -11,7 +11,7 @@ public class PersonMapper {
     public PersonDTO personToListDTO(Person person){
         PersonDTO personDTO = new PersonDTO();
         personDTO.setId(person.getId());
-        personDTO.setFullName(person.getLastName() + person.getFirstName());
+        personDTO.setFullName(person.getLastName() +" " +person.getFirstName());
         personDTO.setCompanyName(person.getCompany().getName());
         personDTO.setEmail(person.getEmail());
         personDTO.setPhoneNumber(person.getPhoneNumber());

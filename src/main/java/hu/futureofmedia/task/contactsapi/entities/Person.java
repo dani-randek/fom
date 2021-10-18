@@ -27,6 +27,7 @@ public class Person {
     @NotBlank(message = "Last name is mandatory")
     private String lastName;
 
+    @NotBlank(message = "Email is mandatory")
     @Email(message = "Has to be a valid e-mail address")
     private String email;
 

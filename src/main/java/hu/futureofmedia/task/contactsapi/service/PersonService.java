@@ -1,6 +1,8 @@
 package hu.futureofmedia.task.contactsapi.service;
 
+import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import hu.futureofmedia.task.contactsapi.entities.*;
 import hu.futureofmedia.task.contactsapi.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,12 @@ public class PersonService {
         ).collect(Collectors.toList());
     }
 
+
+    /**
+     *  A metódus ellenőrzni, próbálja parsol-ni a kapott telefonszámot, ha ez sikerül, akkor ellenőrzi,
+     *  hogy valid telefonszám-e és visszatér az eredménnyel(nem sikerült rájönni az e164 ellenőrzésre
+     *  a PhoneNumberUtil-lal.)
+     */
     private boolean validPhone(String phoneNumber){
         boolean validPhone = true;
         /*
@@ -48,14 +56,19 @@ public class PersonService {
         Phonenumber.PhoneNumber tel = phoneNumberUtil.parse(p.getPhoneNumber());
         phoneNumberUtil.isValidNumber(tel);
          */
-        if(validPhone){
-            return true;
+        try {
+            Phonenumber.PhoneNumber number = phoneNumberUtil.parse(phoneNumber, "HU");
+            return phoneNumberUtil.isValidNumber(number);
+        } catch (NumberParseException e) {
+            System.err.println("NumberParseException was thrown: " + e.toString());
         }
         return false;
     }
 
     /**
-     *  Elment az adatbázisba egy a controllertől kapott person-t.
+     *  Ellenőrzi, hogy létezik-e a kapott id-jú company és érvényes telefonszámot adtak-e meg és ha igen,
+     *  akkor meghívja a mapper osztály megfelelő függvényét, majd az így kapott person-t megpróbálja
+     *  elmenteni.
      */
     public void addPerson(PersonCreateDTO person){
         Optional<Company> company = companyService.getById(person.getCompanyId());
@@ -64,6 +77,11 @@ public class PersonService {
         }
     }
 
+    /**
+     *  Ellenőrzi, hogy létezik-e a kapott id-jú Person és Company és érvényes telefonszámot adtak-e meg és ha igen,
+     *  akkor meghívja a mapper osztály megfelelő függvényét, majd az így kapott person-nek beállítja a kapott id-t
+     *  majd megpróbálja elmenteni az adatbázisba.
+     */
     public void updatePerson(Long id, PersonCreateDTO person){
         Optional<Company> company = companyService.getById(person.getCompanyId());
         Optional<Person> personToUpdate = getById(id);
@@ -82,7 +100,8 @@ public class PersonService {
     }
 
     /**
-     *  Kikeres egy person-t, megnézi létezik-e, ha igen, akkor átalakítja DetailedPersonDTO-vá, majd visszatér vele.
+     *  A getById által kapott optional-ban ellenőrzi, hogy létezik-e a keresett person, ha igen,
+     *  akkor átalakítja DetailedPersonDTO-vá, majd visszatér vele.
      */
     public DetailedPersonDTO getDetailed(Long id) {
         Optional<Person> person = getById(id);
@@ -90,7 +109,9 @@ public class PersonService {
     }
 
     /**
-     *  Kikeres egy person-t, megnézi létezik-e, ha igen akkor törli.
+     *  A getById által kapott optional-ban ellenőrzi, hogy létezik-e a keresett person, ha igen,
+     *  akkor létrehoz egy új person-t beletölti az optional tartalmát, átállítja a status-t
+     *  deleted-re, majd menti az adatbázisba.
      */
     public void deleteById(Long id) {
         Optional<Person> personById = getById(id);
