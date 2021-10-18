@@ -8,6 +8,7 @@ import hu.futureofmedia.task.contactsapi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,13 +31,13 @@ public class PersonController {
     }
 
     @PostMapping("/create")
-    public void addPerson(@RequestBody PersonCreateDTO person){
-        personService.addPerson(person);
+    public ResponseEntity addPerson(@RequestBody PersonCreateDTO person){
+        return personService.addPerson(person);
     }
 
     @PutMapping(path = "{id}")
-    public void updatePersonById(@PathVariable("id") Long id, @RequestBody PersonCreateDTO person){
-        personService.updatePerson(id, person);
+    public ResponseEntity updatePersonById(@PathVariable("id") Long id, @RequestBody PersonCreateDTO person){
+        return personService.updatePerson(id, person);
     }
 
     @DeleteMapping(path = "{id}")

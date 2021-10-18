@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,9 +62,8 @@ public class PersonService {
             Phonenumber.PhoneNumber number = phoneNumberUtil.parse(phoneNumber, "HU");
             return phoneNumberUtil.isValidNumber(number);
         } catch (NumberParseException e) {
-            System.err.println("NumberParseException was thrown: " + e.toString());
+            return false;
         }
-        return false;
     }
 
     /**
@@ -70,10 +71,13 @@ public class PersonService {
      *  akkor meghívja a mapper osztály megfelelő függvényét, majd az így kapott person-t megpróbálja
      *  elmenteni.
      */
-    public void addPerson(PersonCreateDTO person){
+    public ResponseEntity addPerson(PersonCreateDTO person){
         Optional<Company> company = companyService.getById(person.getCompanyId());
         if(validPhone(person.getPhoneNumber()) && company.isPresent()){
             personRepository.save(personMapper.personCreateDTOToPerson(person, company.get()));
+            return new ResponseEntity<>(HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -82,13 +86,16 @@ public class PersonService {
      *  akkor meghívja a mapper osztály megfelelő függvényét, majd az így kapott person-nek beállítja a kapott id-t
      *  majd megpróbálja elmenteni az adatbázisba.
      */
-    public void updatePerson(Long id, PersonCreateDTO person){
+    public ResponseEntity updatePerson(Long id, PersonCreateDTO person){
         Optional<Company> company = companyService.getById(person.getCompanyId());
         Optional<Person> personToUpdate = getById(id);
         if(personToUpdate.isPresent() && company.isPresent()&& validPhone(person.getPhoneNumber())){
             Person updatedPerson = personMapper.personCreateDTOToPerson(person, company.get());
             updatedPerson.setId(id);
             personRepository.save(updatedPerson);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
