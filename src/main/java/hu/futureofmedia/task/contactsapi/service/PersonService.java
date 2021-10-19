@@ -52,7 +52,6 @@ public class PersonService {
      *  a PhoneNumberUtil-lal.)
      */
     private boolean validPhone(String phoneNumber){
-        boolean validPhone = true;
         /*
         phoneNumberUtil.findNumbers(phoneNumber);
         Phonenumber.PhoneNumber tel = phoneNumberUtil.parse(p.getPhoneNumber());

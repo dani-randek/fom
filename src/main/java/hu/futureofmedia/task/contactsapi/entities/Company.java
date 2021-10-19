@@ -1,5 +1,6 @@
 package hu.futureofmedia.task.contactsapi.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
 public class Company {
     @Id
     private Long id;
